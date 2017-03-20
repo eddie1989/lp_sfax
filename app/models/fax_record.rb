@@ -1,14 +1,14 @@
 class FaxRecord < ApplicationRecord
 
   # Validate the recipient number to be only integers , 11 digit length and can not be empty
-    validates   :recipient_number,numericality: {only_integer: true,message: "Recipient Number should not be Empty"},
-      length: {minimum: 11,maximum: 11,message: "Recipient Number should be 11 digit"},allow_blank: false
+  validates   :recipient_number,numericality: {only_integer: true,message: "Recipient Number should not be Empty"},
+  length: {minimum: 11,maximum: 11,message: "Recipient Number should be 11 digit"},allow_blank: false
 
   # Validate the recipient name to not be empty
-    validates_presence_of :recipient_name,message: "Recipitent Name should not be empty"
+  validates_presence_of :recipient_name,message: "Recipitent Name should not be empty"
 
   # Validate the Uploaded file to not be empty
-    validates_presence_of :file_path, message: "Attached file should not be empty"
+  validates_presence_of :file_path, message: "Attached file should not be empty"
 
   # Filtering the fax records according to the entered search value
   def self.filtered_fax_records(search_value)
@@ -42,5 +42,19 @@ class FaxRecord < ApplicationRecord
       fax_record_batch = fax_list.offset(offset).limit(per_page) unless offset > fax_list.size
       return [fax_list.size, fax_record_batch, total_pages]
     end
+  end
+
+  # Sending the initial response to the client
+  def sendback_initial_response_to_client
+    client_initial_response ={'Fax_ID': id,
+      'Recipient_Name': recipient_name,
+      'Recipient_Number': recipient_number,
+      'Attached_Fax_File': file_path,
+      'Success':  status,
+      'Message': message,
+    client_receipt_date: client_receipt_date}
+    p "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ "
+    p  "the json we sendback initially to the client ===>  #{client_initial_response}" #we should change this to the client URL to send the json
+    p "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ "
   end
 end
